@@ -55,7 +55,7 @@ module identity 'app/identity.bicep' = {
 
 module ai 'app/ai.bicep' = {
   name: 'ai'
-  scope: resourceGroup
+  scope: existingResourceGroup
   params: {
     accountName: !empty(openAiAccountName) ? openAiAccountName : '${abbreviations.openAiAccount}-${resourceToken}'
     location: location
@@ -65,7 +65,7 @@ module ai 'app/ai.bicep' = {
 
 module database 'app/database.bicep' = {
   name: 'database'
-  scope: resourceGroup
+  scope: existingResourceGroup
   params: {
     accountName: !empty(cosmosDbAccountName) ? cosmosDbAccountName : '${abbreviations.cosmosDbAccount}-${resourceToken}'
     location: location
@@ -75,7 +75,7 @@ module database 'app/database.bicep' = {
 
 module registry 'app/registry.bicep' = {
   name: 'registry'
-  scope: resourceGroup
+  scope: existingResourceGroup
   params: {
     registryName: !empty(containerRegistryName) ? containerRegistryName : '${abbreviations.containerRegistry}${resourceToken}'
     location: location
@@ -85,7 +85,7 @@ module registry 'app/registry.bicep' = {
 
 module web 'app/web.bicep' = {
   name: serviceName
-  scope: resourceGroup
+  scope: existingResourceGroup
   params: {
     envName: !empty(containerAppsEnvName) ? containerAppsEnvName : '${abbreviations.containerAppsEnv}-${resourceToken}'
     appName: !empty(containerAppsAppName) ? containerAppsAppName : '${abbreviations.containerAppsApp}-${resourceToken}'
@@ -104,7 +104,7 @@ module web 'app/web.bicep' = {
 
 module security 'app/security.bicep' = {
   name: 'security'
-  scope: resourceGroup
+  scope: existingResourceGroup
   params: {
     databaseAccountName: database.outputs.accountName
     appPrincipalId: identity.outputs.principalId
