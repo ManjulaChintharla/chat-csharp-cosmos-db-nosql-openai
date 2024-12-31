@@ -38,10 +38,9 @@ var tags = {
   repo: 'https://github.com/azure-samples/cosmos-db-nosql-dotnet-quickstart'
 }
 
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
-  name: environmentName
-  location: location
-  tags: tags
+
+resource existingResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' existing = {
+  name: existingResourceGroupName
 }
 
 module identity 'app/identity.bicep' = {
