@@ -27,6 +27,7 @@ param containerRegistryName string = ''
 param containerAppsEnvName string = ''
 param containerAppsAppName string = ''
 param userAssignedIdentityName string = ''
+param existingResourceGroupName string
 
 // serviceName is used as value for the tag (azd-service-name) azd uses to identify deployment host
 param serviceName string = 'web'
