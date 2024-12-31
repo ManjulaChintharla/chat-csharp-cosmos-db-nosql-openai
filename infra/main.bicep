@@ -45,7 +45,7 @@ resource existingResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' e
 
 module identity 'app/identity.bicep' = {
   name: 'identity'
-  scope: resourceGroup
+  scope: existingResourceGroup
   params: {
     identityName: !empty(userAssignedIdentityName) ? userAssignedIdentityName : '${abbreviations.userAssignedIdentity}-${resourceToken}'
     location: location
