@@ -28,7 +28,7 @@ module openAiModelDeployment '../core/ai/cognitive-services/deployment.bicep' = 
     skuCapacity: 20
     modelName: 'gpt-35-turbo'
     modelFormat: 'OpenAI'
-    modelVersion: '0301'
+    modelVersion: '0125'
   }
 }
 
