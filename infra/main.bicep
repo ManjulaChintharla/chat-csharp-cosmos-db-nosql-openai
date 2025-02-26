@@ -29,10 +29,6 @@ param containerAppsAppName string = ''
 param userAssignedIdentityName string = ''
 param existingResourceGroupName string
 
-// Use environmentName for application naming
-param finalContainerAppsEnvName string = !empty(containerAppsEnvName) ? containerAppsEnvName : environmentName
-param finalContainerAppsAppName string = !empty(containerAppsAppName) ? containerAppsAppName : environmentName
-
 // serviceName is used as value for the tag (azd-service-name) azd uses to identify deployment host
 param serviceName string = 'web'
 
@@ -43,12 +39,11 @@ var tags = {
   repo: 'https://github.com/azure-samples/cosmos-db-nosql-dotnet-quickstart'
 }
 
-// Reference existing resource group
+
 resource existingResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' existing = {
   name: existingResourceGroupName
 }
 
-// Identity Module
 module identity 'app/identity.bicep' = {
   name: 'identity'
   scope: existingResourceGroup
@@ -59,7 +54,6 @@ module identity 'app/identity.bicep' = {
   }
 }
 
-// AI Module
 module ai 'app/ai.bicep' = {
   name: 'ai'
   scope: existingResourceGroup
@@ -70,7 +64,6 @@ module ai 'app/ai.bicep' = {
   }
 }
 
-// Database Module
 module database 'app/database.bicep' = {
   name: 'database'
   scope: existingResourceGroup
@@ -81,7 +74,6 @@ module database 'app/database.bicep' = {
   }
 }
 
-// Container Registry Module
 module registry 'app/registry.bicep' = {
   name: 'registry'
   scope: existingResourceGroup
@@ -92,13 +84,12 @@ module registry 'app/registry.bicep' = {
   }
 }
 
-// Web App Module
 module web 'app/web.bicep' = {
   name: serviceName
   scope: existingResourceGroup
   params: {
-    envName: finalContainerAppsEnvName
-    appName: finalContainerAppsAppName
+    envName: !empty(containerAppsEnvName) ? containerAppsEnvName : '${abbreviations.containerAppsEnv}-${resourceToken}'
+    appName: !empty(containerAppsAppName) ? containerAppsAppName : '${abbreviations.containerAppsApp}-${resourceToken}'
     databaseAccountEndpoint: database.outputs.endpoint
     openAiAccountEndpoint: ai.outputs.endpoint    
     openAiMaxConversationTokens: ai.outputs.maxConversationTokens
@@ -112,7 +103,6 @@ module web 'app/web.bicep' = {
   }
 }
 
-// Security Module
 module security 'app/security.bicep' = {
   name: 'security'
   scope: existingResourceGroup
@@ -123,26 +113,26 @@ module security 'app/security.bicep' = {
   }
 }
 
-// Database Outputs
+// Database outputs
 output AZURE_COSMOS_ENDPOINT string = database.outputs.endpoint
 output AZURE_COSMOS_DATABASE_NAME string = database.outputs.database.name
 output AZURE_COSMOS_CONTAINER_NAMES array = map(database.outputs.containers, c => c.name)
 
-// Container Registry Outputs
+// Container outputs
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = registry.outputs.endpoint
 output AZURE_CONTAINER_REGISTRY_NAME string = registry.outputs.name
 
-// Application Outputs
+// Application outputs
 output AZURE_CONTAINER_APP_ENDPOINT string = web.outputs.endpoint
 output AZURE_CONTAINER_ENVIRONMENT_NAME string = web.outputs.envName
 
-// Identity Outputs
+// Identity outputs
 output AZURE_USER_ASSIGNED_IDENTITY_NAME string = identity.outputs.name
 
-// Security Outputs
+// Security outputs
 output AZURE_NOSQL_ROLE_DEFINITION_ID string = security.outputs.roleDefinitions.nosql
 
-// Application Environment Variables
+// Application environment variables
 output COSMOSDB__ENDPOINT string = database.outputs.endpoint
 output COSMOSDB__DATABASE string = database.outputs.database.name
 output COSMOSDB__CONTAINER string = database.outputs.containers[0].name
