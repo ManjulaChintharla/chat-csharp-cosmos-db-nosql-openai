@@ -33,11 +33,14 @@ param existingResourceGroupName string
 param serviceName string = 'web'
 
 var abbreviations = loadJsonContent('abbreviations.json')
-var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
-var tags = {
-  'azd-env-name': environmentName
-  repo: 'https://github.com/azure-samples/cosmos-db-nosql-dotnet-quickstart'
-}
+//var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+// var tags = {
+//  'azd-env-name': environmentName
+//  repo: 'https://github.com/azure-samples/cosmos-db-nosql-dotnet-quickstart'
+//}
+
+var resourceToken = toLower(uniqueString(subscription().id, name, location))
+var tags = { 'azd-env-name': name }
 
 
 resource existingResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' existing = {
