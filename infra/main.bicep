@@ -25,31 +25,30 @@ param openAiAccountName string = ''
 param cosmosDbAccountName string = ''
 param containerRegistryName string = ''
 param containerAppsEnvName string = ''
-param containerAppsAppName string = ''
 param userAssignedIdentityName string = ''
-param existingResourceGroupName string
+
+// Use environmentName as the application name
+param containerAppsAppName string = environmentName 
 
 // serviceName is used as value for the tag (azd-service-name) azd uses to identify deployment host
 param serviceName string = 'web'
 
 var abbreviations = loadJsonContent('abbreviations.json')
-//var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
-// var tags = {
-//  'azd-env-name': environmentName
-//  repo: 'https://github.com/azure-samples/cosmos-db-nosql-dotnet-quickstart'
-//}
-
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
-var tags = { 'azd-env-name': environmentName }
+var tags = {
+  'azd-env-name': environmentName
+  repo: 'https://github.com/azure-samples/cosmos-db-nosql-dotnet-quickstart'
+}
 
-
-resource existingResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' existing = {
-  name: existingResourceGroupName
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+  name: environmentName
+  location: location
+  tags: tags
 }
 
 module identity 'app/identity.bicep' = {
   name: 'identity'
-  scope: existingResourceGroup
+  scope: resourceGroup
   params: {
     identityName: !empty(userAssignedIdentityName) ? userAssignedIdentityName : '${abbreviations.userAssignedIdentity}-${resourceToken}'
     location: location
@@ -59,7 +58,7 @@ module identity 'app/identity.bicep' = {
 
 module ai 'app/ai.bicep' = {
   name: 'ai'
-  scope: existingResourceGroup
+  scope: resourceGroup
   params: {
     accountName: !empty(openAiAccountName) ? openAiAccountName : '${abbreviations.openAiAccount}-${resourceToken}'
     location: location
@@ -69,7 +68,7 @@ module ai 'app/ai.bicep' = {
 
 module database 'app/database.bicep' = {
   name: 'database'
-  scope: existingResourceGroup
+  scope: resourceGroup
   params: {
     accountName: !empty(cosmosDbAccountName) ? cosmosDbAccountName : '${abbreviations.cosmosDbAccount}-${resourceToken}'
     location: location
@@ -79,7 +78,7 @@ module database 'app/database.bicep' = {
 
 module registry 'app/registry.bicep' = {
   name: 'registry'
-  scope: existingResourceGroup
+  scope: resourceGroup
   params: {
     registryName: !empty(containerRegistryName) ? containerRegistryName : '${abbreviations.containerRegistry}${resourceToken}'
     location: location
@@ -89,10 +88,10 @@ module registry 'app/registry.bicep' = {
 
 module web 'app/web.bicep' = {
   name: serviceName
-  scope: existingResourceGroup
+  scope: resourceGroup
   params: {
     envName: !empty(containerAppsEnvName) ? containerAppsEnvName : '${abbreviations.containerAppsEnv}-${resourceToken}'
-    appName: !empty(containerAppsAppName) ? containerAppsAppName : '${abbreviations.containerAppsApp}-${resourceToken}'
+    appName: containerAppsAppName // Use environment name as app name
     databaseAccountEndpoint: database.outputs.endpoint
     openAiAccountEndpoint: ai.outputs.endpoint    
     openAiMaxConversationTokens: ai.outputs.maxConversationTokens
@@ -108,7 +107,7 @@ module web 'app/web.bicep' = {
 
 module security 'app/security.bicep' = {
   name: 'security'
-  scope: existingResourceGroup
+  scope: resourceGroup
   params: {
     databaseAccountName: database.outputs.accountName
     appPrincipalId: identity.outputs.principalId
