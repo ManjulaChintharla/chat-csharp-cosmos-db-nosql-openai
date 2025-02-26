@@ -39,8 +39,8 @@ var abbreviations = loadJsonContent('abbreviations.json')
 //  repo: 'https://github.com/azure-samples/cosmos-db-nosql-dotnet-quickstart'
 //}
 
-var resourceToken = toLower(uniqueString(subscription().id, name, location))
-var tags = { 'azd-env-name': name }
+var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+var tags = { 'azd-env-name': environmentName }
 
 
 resource existingResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' existing = {
