@@ -11,7 +11,7 @@ param environmentName string
   'westeurope'
   'japaneast'
   'uksouth'
-  'eastus'
+  'eastus2'
   'southcentralus'
 ])
 @description('Primary location for all resources.')
